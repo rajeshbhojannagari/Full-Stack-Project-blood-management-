@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Geo Tracking - RTBMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="text-center text-3xl font-bold mb-6 text-red-600">Geo Tracking - Donor & Nearby Blood Banks</div>
+  <div class="mb-4 text-center text-lg font-medium">
+    Latitude: <span id="lat" class="text-blue-700">Loading...</span> |
+    Longitude: <span id="lng" class="text-blue-700">Loading...</span>
+  </div>
+  <div id="map" class="h-[500px] w-full rounded shadow-lg"></div>
+  <script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        document.getElementById('lat').textContent = lat.toFixed(6);
+        document.getElementById('lng').textContent = lng.toFixed(6);
+        map.setView([lat, lng], 13);
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup("You are here!")
+          .openPopup();
+        fetch('get_bloodbanks.php')
+          .then(res => res.json())
+          .then(data => {
+            data.forEach(bank => {
+              L.marker([bank.latitude, bank.longitude], { icon: L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/252/252025.png", iconSize: [30, 30] }) })
+                .addTo(map)
+                .bindPopup(`<strong>${bank.name}</strong><br>${bank.address}`);
+            });
+          })
+          .catch(err => {
+            console.error("Error loading blood banks:", err);
+          });
+      },
+      (error) => {
+        alert("Geolocation access denied or unavailable.");
+        console.error(error);
+      }
+    );
+  </script>
+<script>
+  fetch('get_blood_banks.php')
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(bank => {
+        L.marker([bank.latitude, bank.longitude])
+          .addTo(map)
+          .bindPopup(`<b>${bank.name}</b><br>${bank.address}`);
+      });
+    });
+  </script>
+</body>
+</html>
