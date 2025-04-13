@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donate Blood</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-2xl font-bold mb-4">Donate Blood</h1>
+  <div id="success-message" class="hidden bg-green-100 text-green-800 p-4 rounded mb-4">
+    <strong>Thank you!</strong> Your blood donation details have been successfully submitted.
+  </div>
+  <form id="donation-form" action="donate.php" method="POST" class="space-y-4">
+    <input type="text" name="name" placeholder="Your Name" required class="block w-full p-2 border rounded">
+<label for="blood_type" class="block">Blood Type</label>
+<select name="blood_type" id="blood_type" required class="block w-full p-2 border rounded">
+  <option value="" disabled selected>Select your blood group</option>
+  <option value="A+">A+</option>
+  <option value="A-">A-</option>
+  <option value="B+">B+</option>
+  <option value="B-">B-</option>
+  <option value="AB+">AB+</option>
+  <option value="AB-">AB-</option>
+  <option value="O+">O+</option>
+  <option value="O-">O-</option>
+</select>
+    <input type="number" name="quantity" placeholder="Quantity (in units)" required class="block w-full p-2 border rounded" id="quantity">
+    <label for="city" class="block">City</label>
+    <select name="city" id="city" required class="block w-full p-2 border rounded">
+        <option value="Select your place">Select your place</option>
+      <option value="Hyderabad">Hyderabad</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Chennai">Chennai</option>
+      <option value="Bangalore">Bangalore</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Kolkata">Kolkata</option>
+      <option value="Pune">Pune</option>
+      <option value="Ahmedabad">Ahmedabad</option>
+    </select>
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+    
+    <button type="submit" class="bg-red-600 text-white p-2 rounded">Donate</button>
+  </form>
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          document.getElementById('latitude').value = position.coords.latitude;
+          document.getElementById('longitude').value = position.coords.longitude;
+        }, function(error) {
+          alert("Geolocation is not supported or the location could not be retrieved.");
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+    function validateForm(event) {
+      const quantity = document.getElementById('quantity').value;
+      
+      if (quantity <= 0) {
+        alert("Quantity must be a positive number.");
+        event.preventDefault();
+        return false;
+      }
+      return true;
+    }
+    window.onload = function() {
+      getLocation();
+      document.getElementById('donation-form').addEventListener('submit', validateForm);
+    };
+    function showSuccessMessage() {
+      document.getElementById('donation-form').reset();
+      document.getElementById('success-message').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
